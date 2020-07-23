@@ -1,14 +1,17 @@
 package com.dsckiet.covid_project_demo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.nkzawa.socketio.client.Socket
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.net.URISyntaxException
 
 
 class MainActivity : AppCompatActivity() {
@@ -18,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val app: SocketInstance = application as SocketInstance
         mSocket = app.getmSocket()
+
         mSocket?.connect()
 
         while (!mSocket!!.connected()) {
@@ -27,44 +31,44 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = GONE
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show()
 
-            var jsonObject1 = JSONObject()
-            try {
-                jsonObject1.put(
-                    "patientsPoolForDoctor",
-                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmMTMzZWEzMTgxOTM2MWUxMDE2Y2U5NCIsIm5hbWUiOiJSb290IERvY3RvciIsImVtYWlsIjoicmF3aWI1NDQzMkBleHBsb3JheGIuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTU5NTA5NjkzOX0.Ci50Rfi8oW6BlxIS8IP4329JQEBMDdoFyWex1iq7_sM"
-                )
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-            button.setOnClickListener {
+        val jsonObject1 = JSONObject()
+        try {
+            jsonObject1.put(
+                "token",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmMTMzZWEzMTgxOTM2MWUxMDE2Y2U5NCIsIm5hbWUiOiJSb290IERvY3RvciIsImVtYWlsIjoicmF3aWI1NDQzMkBleHBsb3JheGIuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTU5NTA5NjkzOX0.Ci50Rfi8oW6BlxIS8IP4329JQEBMDdoFyWex1iq7_sM"
+            )
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        mSocket!!.on("PATIENTS_POOL_FOR_DOCTOR") { args ->
+            val data = args[0] as JSONArray
+            //here the data is in JSON Format
 
+            Log.d("testCase", data.toString())
+
+            Log.d("size", data.length().toString())
+            runOnUiThread {
+                Log.d("test", "test success")
+                for (i in 0 until data.length()) {
+                    text.text =data[i].toString() + "\n\n\n"
+                }
+            }
+        }
+        button.setOnClickListener {
+            try {
                 mSocket!!.emit(
                     "patientsPoolForDoctor", jsonObject1
                 )
-
-                mSocket!!.on("PATIENTS_POOL_FOR_DOCTOR") { args ->
-                    val data = args[0] as JSONObject
-                    //here the data is in JSON Format
-
-                    Toast.makeText(this, data.toString(), Toast.LENGTH_SHORT).show()
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Pikabooo Here you done.",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        //Toast.makeText(this, "hey", Toast.LENGTH_SHORT).show();
-                        //whatever your UI logic
-                    }
-                }
-
-
-
+            } catch (e: URISyntaxException) {
+                e.printStackTrace()
             }
 
 
+        }
+    }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        mSocket!!.disconnect()
     }
 }
