@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         try {
             jsonObject1.put(
                 "token",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmMTMzZWEzMTgxOTM2MWUxMDE2Y2U5NCIsIm5hbWUiOiJSb290IERvY3RvciIsImVtYWlsIjoicmF3aWI1NDQzMkBleHBsb3JheGIuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTU5NTA5NjkzOX0.Ci50Rfi8oW6BlxIS8IP4329JQEBMDdoFyWex1iq7_sM"
+                "TOKEN"
             )
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -44,9 +44,7 @@ class MainActivity : AppCompatActivity() {
             val data = args[0] as JSONArray
             //here the data is in JSON Format
 
-            Log.d("testCase", data.toString())
-
-            Log.d("size", data.length().toString())
+          
             runOnUiThread {
                 Log.d("test", "test success")
                 for (i in 0 until data.length()) {
@@ -69,6 +67,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mSocket!!.disconnect()
+        mSocket?.disconnect()
     }
 }
